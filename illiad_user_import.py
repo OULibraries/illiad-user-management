@@ -298,31 +298,35 @@ def main():
     Returns:
     None
     """
-    cat2dict = {}
-    cat3dict = {}
+    dept_dict = {}
+    degree_dict = {}
 
-    with open("cat2s", "r") as cat2file:
-        for cat2 in cat2file:
-            cat2data = cat2.split('|')
-            cat2dict[cat2data[2]] = cat2data[3]
+    with open("cat2s", "r") as dept_file:
+        for line in dept_file:
+            dept_data = line.split('|')
+            dept_dict[dept_data[2]] = dept_data[3]
 
-    with open("cat3s", "r") as cat3file:
-        for cat3 in cat3file:
-            cat3data = cat3.split('|')
-            cat3dict[cat3data[2]] = cat3data[3]
+    with open("cat3s", "r") as degree_file:
+        for line in degree_file:
+            degree_data = line.split('|')
+            degree_dict[degree_data[2]] = degree_data[3]
 
-    empdoc = ElementTree.parse("lib_emp.txt")
-    studoc = ElementTree.parse("lib_stu.txt")
-    emproot = empdoc.getroot()
-    sturoot = studoc.getroot()
+    employee_doc = ElementTree.parse("lib_emp.txt")
+    student_doc = ElementTree.parse("lib_stu.txt")
+    employee_root = employee_doc.getroot()
+    student_root = student_doc.getroot()
     user_list = []
-    for i in emproot.findall("user"):
-        user_list.append(getuser(i, cat2dict, cat3dict))
+    for i in employee_root.findall("user"):
+        user_list.append(getuser(i, dept_dict, degree_dict))
 
-    for i in sturoot.findall("user"):
-        user_list.append(getuser(i, cat2dict, cat3dict))
+    for i in student_root.findall("user"):
+        user_list.append(getuser(i, dept_dict, degree_dict))
 
     update_tables(user_list)
     illiad_add_user()
     illiad_remove_user()
     illiad_update_user()
+
+
+if __name__ == "__main__":
+    main()
