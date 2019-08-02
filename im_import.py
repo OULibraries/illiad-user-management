@@ -36,126 +36,6 @@ cat3s
 """
 
 
-def finder(tree, elmkey):
-    """A XML helper function that returns the text of an Element if it exists
-    If it is not set it retuns an empty string
-
-    Parameters:
-    tree: ElementTree object from which to lookup key
-    elmkey: Element object to lookup the text value of from tree
-
-    Returns:
-    ret: A string object containing the text value of the ElementTree Loookup
-         contains "" if lookup is fails
-    """
-
-    tmp = tree.find(elmkey)
-    if tmp is not None:
-        ret = tmp.text
-    else:
-        ret = ""
-    return ret
-
-
-def getuser(user, cat2dict={}, cat3dict={}):
-    """Parse a XML User entry and output a list
-    containing formatted user entries
-
-    Parameters:
-    cat2dict: A dictionary containing departmental categories
-    cat3dict: A dictionary containing major/degree categories
-
-    Returns:
-    user: A list containing parsed users fields
-    """
-    line1 = ""
-    city = ""
-    state = ""
-    postalCode = ""
-    email = ""
-    phone = ""
-    barcode = ""
-    usercat1 = ""
-    usercat2 = ""
-    usercat3 = ""
-    usercat2der = ""
-    usercat3der = ""
-    ouNetID = ""
-    firstName = ""
-    middleName = ""
-    lastName = ""
-    userGroup = ""
-    ouNetID = finder(user, "primary_id")
-    firstName = finder(user, "first_name")
-    middleName = finder(user, "middle_name")
-    lastName = finder(user, "last_name")
-    userGroup = finder(user, "user_group")
-    contact_info = user.findall("./contact_info/addresses/*")
-    email_info = user.findall("./contact_info/emails/*")
-    phone_info = user.findall("./contact_info/phones/*")
-    id_type = finder(user, "./user_identifiers/user_identifier/id_type")
-    id_val = finder(user, "./user_identifiers/user_identifier/value")
-    stats_info = user.findall("./user_statistics/user_statistic")
-    cats = {}
-    for i in contact_info:
-        if i.attrib["preferred"] == "true":
-            city = finder(i, "city")
-            line1 = finder(i, "line1")
-            state = finder(i, "state_province")
-            postalCode = finder(i, "postal_code")
-
-    for i in email_info:
-        if i.attrib["preferred"] == "true":
-            email = finder(i, "email_address")
-
-    for i in phone_info:
-        if i.attrib["preferred"] == "true":
-            phone = finder(i, "phone_number")
-
-    for i in stats_info:
-        tmparr = finder(i, "statistic_category").split(":")
-        cats[tmparr[0]] = tmparr[1]
-
-    if id_type == "BARCODE":
-        barcode = id_val
-
-    usercat1 = cats.get("CAT1")
-    usercat2 = cats.get("CAT2")
-    usercat3 = cats.get("CAT3")
-    usercat2der = cat2dict.get(usercat2)
-    usercat3der = cat3dict.get(usercat3)
-    longline = "|"
-    fullName = " "
-    fullName = fullName.join([firstName, middleName, lastName])
-    new_user = [
-        barcode,
-        ouNetID,
-        fullName,
-        firstName,
-        middleName,
-        lastName,
-        userGroup,
-        usercat1,
-        usercat2,
-        usercat2der,
-        usercat3,
-        usercat3der,
-        phone,
-        line1,
-        city,
-        state,
-        postalCode,
-        email,
-    ]
-
-    for i, j in enumerate(new_user):
-        if j is None:
-            new_user[i] = ""
-
-    new_user.append(longline.join(new_user))
-    return new_user
-
-
 def main():
     """
     This function does initial loading of files,
@@ -180,22 +60,25 @@ def main():
             cat3data = cat3.split("|")
             cat3dict[cat3data[2]] = cat3data[3]
 
-    empdoc = ElementTree.parse("lib_emp.txt")
-    studoc = ElementTree.parse("lib_stu.txt")
+    empdoc = ElementTree.parse("new_lib_emp.txt")
+    studoc = ElementTree.parse("new_lib_stu.txt")
     emproot = empdoc.getroot()
     sturoot = studoc.getroot()
     user_list = []
+    im = illiad_manager.illiad_manager()
     for i in emproot.findall("user"):
-        user_list.append(getuser(i, cat2dict, cat3dict))
+        user_list.append(im.getuser(i, cat2dict, cat3dict))
 
     for i in sturoot.findall("user"):
-        user_list.append(getuser(i, cat2dict, cat3dict))
+        user_list.append(im.getuser(i, cat2dict, cat3dict))
 
-    im = illiad_manager.illiad_manager()
     im.update_tables(user_list)
     im.gen_user_adds()
     im.gen_user_removals()
     im.gen_user_updates()
+    im.add_users()
+    im.update_users()
+    im.remove_users()
     im.close_cnxn()
 
 
