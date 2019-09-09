@@ -247,23 +247,15 @@ class illiad_manager:
         for i in user_adds:
             if i[0] not in ill_list:
                 add_list.append(i)
+                add_id.append(i[0])
 
-        add_dict = {}
-        for i in add_list:
-            add_dict[i[0]] = i
-            add_id.append(i[0])
-
-        dlist = []
-        for v in add_dict.values():
-            dlist.append(v)
-
-        print('Adding ' + str(len(dlist)) + ' users')
-        if len(dlist) > 0:
+        print('Adding ' + str(len(add_list)) + ' users')
+        if len(add_list) > 0:
             self.ill_cursor.executemany(
                     """insert into users (UserName, LastName, FirstName, SSN,
                     Status, EMailAddress, Phone, Department, Address, City,
-                    State, Zip, Site)
-                    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", dlist
+                    State, Zip, Site) values
+                    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", add_list
                 )
             for user in add_id:
                 self.ill_cursor.execute("""update users
@@ -286,7 +278,8 @@ class illiad_manager:
             """select alt_id from ill_remove"""
         ).fetchall()
         print('Removing ' + str(len(user_removals)) + ' users')
-        self.ill_cursor.executemany(
+        if len(user_removals) > 0:
+            self.ill_cursor.executemany(
                 """delete from users where UserName=?""", user_removals)
 
     def update_users(self):
