@@ -262,7 +262,7 @@ class illiad_manager:
             self.ill_cursor.executemany(
                     """insert into users (UserName, LastName, FirstName, SSN,
                     Status, EMailAddress, Phone, Department, Address, City,
-                    State, Zip, Site)
+                    State, Zip, Site) values
                     (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", dlist
                 )
             for user in add_id:
