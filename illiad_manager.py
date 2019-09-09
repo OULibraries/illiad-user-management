@@ -83,7 +83,9 @@ class illiad_manager:
                                       main_city, main_state, main_zip,
                                       email1, userdata)"""
         )
+        print('\tClearing ill_add')
         self.sqlite3_cursor.execute("""delete from ill_add""")
+        print('\tGetting New Users')
         user_list = self.sqlite3_cursor.execute(
             """select * from (SELECT DISTINCT user_id
                                                      FROM USERS_NEW
@@ -92,6 +94,7 @@ class illiad_manager:
                                                     FROM USERS_OLD)) f
                                     join USERS_NEW using(USER_ID)"""
         ).fetchall()
+        print('\tMarking ' + str(len(user_list)) + ' users to be added')
         self.sqlite3_cursor.executemany(
                 """insert into ill_add values(?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?,
                       ?, ?, ?, ?, ?, ?, ?, ?)""", user_list
@@ -119,7 +122,9 @@ class illiad_manager:
                                       main_city, main_state, main_zip,
                                       email1, userdata)"""
         )
+        print('\tClearing ill_remove')
         self.sqlite3_cursor.execute("""delete from ill_remove""")
+        print('\tGetting Users to be Removed')
         user_list = self.sqlite3_cursor.execute(
             """select * from (SELECT DISTINCT user_id
                                                      FROM USERS_OLD
@@ -128,6 +133,7 @@ class illiad_manager:
                                                     FROM USERS_NEW)) f
                                     join USERS_OLD using(USER_ID)"""
         ).fetchall()
+        print('\tMarking ' + str(len(user_list)) + ' users to be Removed')
         self.sqlite3_cursor.executemany(
                 """insert into ill_remove values(?, ?, ?, ?, ?, ?, ?, ?, ?,?,
                       ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
@@ -155,15 +161,41 @@ class illiad_manager:
                                       main_city, main_state, main_zip,
                                       email1, userdata)"""
         )
+        print('\tClearing ill_update')
         self.sqlite3_cursor.execute("""delete from ill_update""")
-
+        print('\tGetting users to Update')
         user_list = self.sqlite3_cursor.execute(
-            """SELECT distinct f.*
-                                      FROM USERS_OLD as a
-                                      join (select * from users_new) f
-                                      on a.user_id = f.user_id
-                                      where f.userdata != a.userdata"""
+            """
+            select f.alt_id, f.last_name, f.first_name,
+            f.user_id, f.user_profile, f.email1, f.phone1, f.department,
+            f.main_street, f.main_city, f.main_state, f.main_zip,
+            f.user_cat1 from (select alt_id, last_name, first_name,
+            user_id, user_profile, email1, phone1, department,
+            SUBSTR(main_street,1,39) as main_street,
+            SUBSTR(main_city, 1, 29) as main_city,
+            SUBSTR(main_state,1,2) as main_state,
+            main_zip, user_cat1,  alt_id|| last_name
+            || first_name|| user_id || user_profile || email1 ||
+            phone1|| department||SUBSTR(main_street,1,39)||
+            SUBSTR(main_city, 1, 29) || SUBSTR(main_state,1,2)
+            || main_zip || user_cat1
+                as hash from users_old) as a
+                join (select user_id, last_name, first_name,
+                user_id, user_profile, email1, phone1, department,
+                SUBSTR(main_street,1,39) as main_street,
+            SUBSTR(main_city, 1, 29) as main_city,
+            SUBSTR(main_state,1,2) as main_state,
+            main_zip, user_cat1, alt_id, alt_id|| last_name
+                || first_name|| user_id || user_profile || email1 ||
+                phone1|| department|| SUBSTR(main_street,1,39)||
+            SUBSTR(main_city, 1, 29) || SUBSTR(main_state,1,2)
+            || main_zip || user_cat1
+                as hash
+                from users_new) f
+                using(alt_id)
+                where f.hash != a.hash"""
         ).fetchall()
+        print('\tMarking ' + str(len(user_list)) + ' users to be Updated')
         self.sqlite3_cursor.executemany(
                 """insert into ill_update(alt_id, last_name, first_name,
                 user_id, user_profile, email1, phone1, department, main_street,
@@ -197,12 +229,15 @@ class illiad_manager:
                                       email1, userdata)"""
         )
 
+        print("\tClearing users_old")
         self.sqlite3_cursor.execute("""delete from users_old""").fetchall()
 
+        print("\tGetting current ILLiad Users")
         ill_users = self.ill_cursor.execute("""SELECT UserName, LastName, FirstName, SSN,
                 Status, EMailAddress, Phone, Department, Address, City, State,
                 Zip, Site from Users""").fetchall()
 
+        print("\tInserting " + str(len(ill_users)) + " users into users_old")
         self.sqlite3_cursor.executemany("""insert into users_old
         (alt_id, last_name, first_name, user_id,
             user_profile, email1, phone1, department,
@@ -211,7 +246,9 @@ class illiad_manager:
             values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", ill_users)
 
         # # Clear out users_new and import new users from user_list
+        print("\tClearing users_new")
         self.sqlite3_cursor.execute("""DELETE from users_new""")
+        print("\tInserting " + str(len(user_list)) + " users into users_new")
         self.sqlite3_cursor.executemany(
                         """insert into users_new values(?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?,
                         ?, ?, ?, ?, ?, ?, ?, ?)""",
@@ -249,7 +286,8 @@ class illiad_manager:
                 add_list.append(i)
                 add_id.append(i[0])
 
-        print('Adding ' + str(len(add_list)) + ' users')
+        print('\tAdding ' + str(len(add_list)) + ' users')
+
         if len(add_list) > 0:
             self.ill_cursor.executemany(
                     """insert into users (UserName, LastName, FirstName, SSN,
@@ -277,7 +315,9 @@ class illiad_manager:
         user_removals = self.sqlite3_cursor.execute(
             """select alt_id from ill_remove"""
         ).fetchall()
-        print('Removing ' + str(len(user_removals)) + ' users')
+
+        print('\tRemoving ' + str(len(user_removals)) + ' users')
+
         if len(user_removals) > 0:
             self.ill_cursor.executemany(
                 """delete from users where UserName=?""", user_removals)
@@ -300,7 +340,7 @@ class illiad_manager:
             main_zip, user_cat1, alt_id from ill_update"""
         ).fetchall()
 
-        print('Updating ' + str(len(user_updates)) + ' users')
+        print('\tUpdating ' + str(len(user_updates)) + ' users')
         if len(user_updates) > 0:
             self.ill_cursor.executemany(
                     """update users
