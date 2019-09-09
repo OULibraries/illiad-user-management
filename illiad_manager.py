@@ -287,6 +287,7 @@ class illiad_manager:
                 add_id.append(i[0])
 
         print('\tAdding ' + str(len(add_list)) + ' users')
+
         if len(add_list) > 0:
             self.ill_cursor.executemany(
                     """insert into users (UserName, LastName, FirstName, SSN,
@@ -314,7 +315,9 @@ class illiad_manager:
         user_removals = self.sqlite3_cursor.execute(
             """select alt_id from ill_remove"""
         ).fetchall()
+
         print('\tRemoving ' + str(len(user_removals)) + ' users')
+
         if len(user_removals) > 0:
             self.ill_cursor.executemany(
                 """delete from users where UserName=?""", user_removals)
