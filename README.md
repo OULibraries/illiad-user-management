@@ -2,12 +2,13 @@
 _Helper Scripts for ILLiad User Management_
 ---
 
-This module updates/imports users into ILLiad
-
-**Actual ILLiad Database updates still need to be implemented, but this module will generate the framework of what actions need to be taken.**
+This module synchronizes ILLiad database with a supplied XML document
 
 ---
 **Requires:**
+
+Database Access to ILLiad
+* SELECT, INSERT, and DELETE Permissions required 
 
 Python 3.6+
 
@@ -52,6 +53,8 @@ from which this module is executed:
     - A text file containing departmental pipe-delimeted metadata
 * cat3s
     - A text file containing degree/major pipe-delimeted metadata
+* secrets.py  
+    - Connection String is stored here this will need to be created/modified.
 
 ---
 
