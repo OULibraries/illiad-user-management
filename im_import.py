@@ -49,7 +49,6 @@ def main():
     """
     cat2dict = {}
     cat3dict = {}
-
     with open("cat2s", "r") as cat2file:
         for cat2 in cat2file:
             cat2data = cat2.split("|")
@@ -60,8 +59,8 @@ def main():
             cat3data = cat3.split("|")
             cat3dict[cat3data[2]] = cat3data[3]
 
-    empdoc = ElementTree.parse("new_lib_emp.txt")
-    studoc = ElementTree.parse("new_lib_stu.txt")
+    empdoc = ElementTree.parse("lib_emp.txt")
+    studoc = ElementTree.parse("lib_stu.txt")
     emproot = empdoc.getroot()
     sturoot = studoc.getroot()
     user_list = []
@@ -72,13 +71,21 @@ def main():
     for i in sturoot.findall("user"):
         user_list.append(im.getuser(i, cat2dict, cat3dict))
 
+    print('Updating Tables')
     im.update_tables(user_list)
+    print('Generating User Adds')
     im.gen_user_adds()
+    print('Generating User Removes')
     im.gen_user_removals()
+    print('Generating User Updates')
     im.gen_user_updates()
-    im.add_users()
-    im.update_users()
+    print('Removing Users')
     im.remove_users()
+    print('Adding Users')
+    im.add_users()
+    print('Updating Users')
+    im.update_users()
+    print('Closing Connection')
     im.close_cnxn()
 
 
