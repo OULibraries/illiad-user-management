@@ -4,7 +4,7 @@ import secrets
 
 
 """
-This object contains functions to perform user updates/imports into ILLiad
+This object contains functions to perform User updates/imports into ILLiad
 Actual ILLiad Database updates still need to be implemented,
 but this module will generate the framework of what actions need to be taken.
 
@@ -13,27 +13,27 @@ The following functions exist:
 finder:
     - XML Lookup tool
 get_user:
-    - Process XML entry and return formatted user entry
+    - Process XML entry and return formatted User entry
 gen_user_adds:
-    - Compares users_old with users_new to generate table
-      containing user additions
+    - Compares USERS_OLD with USERS_NEW to generate table
+      containing User additions
 gen_user_removals:
-    - Compares users_new with users_old to generate table
-      containing user removals
+    - Compares USERS_NEW with USERS_OLD to generate table
+      containing User removals
 gen_user_updates:
-    - Compares users_new with users_old to generate table
-      containing user updates
+    - Compares USERS_NEW with USERS_OLD to generate table
+      containing User updates
 update_tables:
-    - Takes a list containing parsed user data to be passed into SQLite3,
-      this will shift users_new to users_old and generate a fresh users_new
-      from parsed user data
+    - Takes a list containing parsed User data to be passed into SQLite3,
+      this will shift USERS_NEW to USERS_OLD and generate a fresh USERS_NEW
+      from parsed User data
 add_users:
-    - Add users in ILLiad database from SQLite3 user addition table
+    - Add users in ILLiad database from SQLite3 User addition table
 update_users()
-    - Update users in ILLiad database from SQLite3 user update table
+    - Update users in ILLiad database from SQLite3 User update table
 
 remove_users()
-    - Remove users in ILLiad database from SQLite3 user remove table
+    - Remove users in ILLiad database from SQLite3 User remove table
 
 """
 
@@ -63,8 +63,8 @@ class illiad_manager:
 
     def gen_user_adds(self):
         """This function creates a table containg entries to be added in ILLiad
-        These entries are calculated by finding entries present in users_new
-        that are not present in users_old.
+        These entries are calculated by finding entries present in USERS_NEW
+        that are not present in USERS_OLD.
 
         Parameters:
         None
@@ -75,7 +75,7 @@ class illiad_manager:
 
         self.sqlite3_cursor.execute(
             """create table if not exists
-                           ill_add (user_id, alt_id, user_name_full,
+                           ILL_ADD (user_id, alt_id, user_name_full,
                                       first_name, middle_name, last_name,
                                       user_profile, user_cat1,
                                       user_cat2, major, user_cat3,
@@ -83,9 +83,9 @@ class illiad_manager:
                                       main_city, main_state, main_zip,
                                       email1, userdata)"""
         )
-        print('\tClearing ill_add')
-        self.sqlite3_cursor.execute("""delete from ill_add""")
-        print('\tGetting New Users')
+        print('\tClearing SQLite3 Table: ILL_ADD')
+        self.sqlite3_cursor.execute("""delete from ILL_ADD""")
+        print('\tGetting Users to be added to ILLiad')
         user_list = self.sqlite3_cursor.execute(
             """select * from (SELECT DISTINCT user_id
                                                      FROM USERS_NEW
@@ -94,16 +94,17 @@ class illiad_manager:
                                                     FROM USERS_OLD)) f
                                     join USERS_NEW using(USER_ID)"""
         ).fetchall()
-        print('\tMarking ' + str(len(user_list)) + ' users to be added')
+        print('\tMarking ' + str(len(user_list)) +
+              ' Users in SQLite3 to be added to ILLiad')
         self.sqlite3_cursor.executemany(
-                """insert into ill_add values(?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?,
+                """insert into ILL_ADD values(?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?,
                       ?, ?, ?, ?, ?, ?, ?, ?)""", user_list
             )
 
     def gen_user_removals(self):
         """This creates a table containg entries to be removed in ILLiad
-        These entries are calculated by finding entries present in users_old
-        that are not present in users_new.
+        These entries are calculated by finding entries present in USERS_OLD
+        that are not present in USERS_NEW.
 
         Parameters:
         None
@@ -114,7 +115,7 @@ class illiad_manager:
 
         self.sqlite3_cursor.execute(
             """create table if not exists
-                           ill_remove (user_id, alt_id, user_name_full,
+                           ILL_REMOVE (user_id, alt_id, user_name_full,
                                       first_name, middle_name, last_name,
                                       user_profile, user_cat1,
                                       user_cat2, major, user_cat3,
@@ -122,9 +123,9 @@ class illiad_manager:
                                       main_city, main_state, main_zip,
                                       email1, userdata)"""
         )
-        print('\tClearing ill_remove')
-        self.sqlite3_cursor.execute("""delete from ill_remove""")
-        print('\tGetting Users to be Removed')
+        print('\tClearing SQLite3 Table: ILL_REMOVE')
+        self.sqlite3_cursor.execute("""delete from ILL_REMOVE""")
+        print('\tGetting Users to be Removed from ILLiad')
         user_list = self.sqlite3_cursor.execute(
             """select * from (SELECT DISTINCT user_id
                                                      FROM USERS_OLD
@@ -133,9 +134,10 @@ class illiad_manager:
                                                     FROM USERS_NEW)) f
                                     join USERS_OLD using(USER_ID)"""
         ).fetchall()
-        print('\tMarking ' + str(len(user_list)) + ' users to be Removed')
+        print('\tMarking ' + str(len(user_list)) +
+              ' Users in SQLite3 to be Removed from ILLiad')
         self.sqlite3_cursor.executemany(
-                """insert into ill_remove values(?, ?, ?, ?, ?, ?, ?, ?, ?,?,
+                """insert into ILL_REMOVE values(?, ?, ?, ?, ?, ?, ?, ?, ?,?,
                       ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 user_list,
             )
@@ -153,7 +155,7 @@ class illiad_manager:
 
         self.sqlite3_cursor.execute(
             """create table if not exists
-                           ill_update (user_id, alt_id, user_name_full,
+                           ILL_UPDATE (user_id, alt_id, user_name_full,
                                       first_name, middle_name, last_name,
                                       user_profile, user_cat1,
                                       user_cat2, major, user_cat3,
@@ -161,9 +163,9 @@ class illiad_manager:
                                       main_city, main_state, main_zip,
                                       email1, userdata)"""
         )
-        print('\tClearing ill_update')
-        self.sqlite3_cursor.execute("""delete from ill_update""")
-        print('\tGetting users to Update')
+        print('\tClearing SQLite3 Table: ILL_UPDATE')
+        self.sqlite3_cursor.execute("""delete from ILL_UPDATE""")
+        print('\tGetting Users to Updated in ILLiad')
         user_list = self.sqlite3_cursor.execute(
             """
             select f.alt_id, f.last_name, f.first_name,
@@ -179,7 +181,7 @@ class illiad_manager:
             phone1|| department||SUBSTR(main_street,1,39)||
             SUBSTR(main_city, 1, 29) || SUBSTR(main_state,1,2)
             || main_zip || user_cat1
-                as hash from users_old) as a
+                as hash from USERS_OLD) as a
                 join (select user_id, last_name, first_name,
                 user_id, user_profile, email1, phone1, department,
                 SUBSTR(main_street,1,39) as main_street,
@@ -191,13 +193,14 @@ class illiad_manager:
             SUBSTR(main_city, 1, 29) || SUBSTR(main_state,1,2)
             || main_zip || user_cat1
                 as hash
-                from users_new) f
+                from USERS_NEW) f
                 using(alt_id)
                 where f.hash != a.hash"""
         ).fetchall()
-        print('\tMarking ' + str(len(user_list)) + ' users to be Updated')
+        print('\tMarking ' + str(len(user_list)) +
+              ' Users in SQLite3 to be Updated in ILLiad')
         self.sqlite3_cursor.executemany(
-                """insert into ill_update(alt_id, last_name, first_name,
+                """insert into ILL_UPDATE(alt_id, last_name, first_name,
                 user_id, user_profile, email1, phone1, department, main_street,
                 main_city, main_state, main_zip, user_cat1)
                 values(?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?)""",
@@ -205,22 +208,22 @@ class illiad_manager:
             )
 
     def update_tables(self, user_list):
-        """This function updates two user management update_tables,
-        users_old contains the imported users from the previous
-        users_new contains the new users that are being imported
+        """This function updates two User management update_tables,
+        USERS_OLD contains the imported users from the previous
+        USERS_NEW contains the new users that are being imported
 
         Parameters:
-        user_list: List containing parsed user data to be passed into SQLite3
+        user_list: List containing parsed User data to be passed into SQLite3
 
         Returns:
         None
         """
 
-        # Create users_new table if it doesn't exist,
+        # Create USERS_NEW table if it doesn't exist,
         # typically during first run
         self.sqlite3_cursor.execute(
             """create table if not exists
-                           users_new (user_id, alt_id, user_name_full,
+                           USERS_NEW (user_id, alt_id, user_name_full,
                                       first_name, middle_name, last_name,
                                       user_profile, user_cat1,
                                       user_cat2, major, user_cat3,
@@ -229,35 +232,37 @@ class illiad_manager:
                                       email1, userdata)"""
         )
 
-        print("\tClearing users_old")
-        self.sqlite3_cursor.execute("""delete from users_old""").fetchall()
+        print("\tClearing SQLite3 Table: USERS_OLD")
+        self.sqlite3_cursor.execute("""delete from USERS_OLD""").fetchall()
 
-        print("\tGetting current ILLiad Users")
+        print("\tGetting Current ILLiad Users")
         ill_users = self.ill_cursor.execute("""SELECT UserName, LastName, FirstName, SSN,
                 Status, EMailAddress, Phone, Department, Address, City, State,
                 Zip, Site from Users""").fetchall()
 
-        print("\tInserting " + str(len(ill_users)) + " users into users_old")
-        self.sqlite3_cursor.executemany("""insert into users_old
+        print("\tInserting " + str(len(ill_users)) +
+              " Users into SQLite3 Table USERS_OLD")
+        self.sqlite3_cursor.executemany("""insert into USERS_OLD
         (alt_id, last_name, first_name, user_id,
             user_profile, email1, phone1, department,
             main_street, main_city, main_state,
             main_zip, user_cat1)
             values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", ill_users)
 
-        # # Clear out users_new and import new users from user_list
-        print("\tClearing users_new")
-        self.sqlite3_cursor.execute("""DELETE from users_new""")
-        print("\tInserting " + str(len(user_list)) + " users into users_new")
+        # # Clear out USERS_NEW and import new users from user_list
+        print("\tClearing SQLite3 Table: USERS_NEW")
+        self.sqlite3_cursor.execute("""DELETE from USERS_NEW""")
+        print("\tInserting " + str(len(user_list)) +
+              " Users into SQLite3 Table USERS_NEW")
         self.sqlite3_cursor.executemany(
-                        """insert into users_new values(?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?,
+                        """insert into USERS_NEW values(?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?,
                         ?, ?, ?, ?, ?, ?, ?, ?)""",
                         user_list,
                     )
 
     def add_users(self):
-        """This function performs user additions to the ILLiad database
-           by querying the local SQLite3 ill_add table
+        """This function performs User additions to the ILLiad database
+           by querying the local SQLite3 ILL_ADD table
 
         Parameters:
         None
@@ -270,7 +275,7 @@ class illiad_manager:
             """select alt_id, last_name, first_name, user_id, user_profile,
             email1, phone1, department, SUBSTR(main_street,1,39),
             SUBSTR(main_city, 1, 29), SUBSTR(main_state,1,2),
-            main_zip, user_cat1 from ill_add"""
+            main_zip, user_cat1 from ILL_ADD"""
         ).fetchall()
 
         ill_users = self.ill_cursor.execute("""select distinct
@@ -286,7 +291,7 @@ class illiad_manager:
                 add_list.append(i)
                 add_id.append(i[0])
 
-        print('\tAdding ' + str(len(add_list)) + ' users')
+        print('\tAdding ' + str(len(add_list)) + ' Users to ILLiad')
 
         if len(add_list) > 0:
             self.ill_cursor.executemany(
@@ -295,15 +300,48 @@ class illiad_manager:
                     State, Zip, Site) values
                     (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", add_list
                 )
-            for user in add_id:
+            for User in add_id:
                 self.ill_cursor.execute("""update users
-            set LastChangedDate=GETDATE(), NVTGC='ILL', Cleared='Yes',
-            Web='Yes',NotificationMethod='Electronic' where UserName = ?
-        """, user)
+            Set LastChangedDate=GETDATE(), NVTGC='ILL', Cleared='Yes',
+            Web='Yes',NotificationMethod='Electronic'
+            where UserName = ?
+        """, User)
+                self.ill_cursor.execute("""INSERT INTO UserNotifications
+                                    (UserName, ActivityType, NotificationType)
+                                     VALUES
+                                     (?,'ClearedUser','Email')""", User)
+                self.ill_cursor.execute("""INSERT INTO UserNotifications
+                                    (UserName, ActivityType, NotificationType)
+                                     VALUES
+                                     (?,'PasswordReset','Email')""", User)
+                self.ill_cursor.execute("""INSERT INTO UserNotifications
+                                    (UserName, ActivityType, NotificationType)
+                                     VALUES
+                                     (?,'RequestPickup','Email')""", User)
+                self.ill_cursor.execute("""INSERT INTO UserNotifications
+                                    (UserName, ActivityType, NotificationType)
+                                     VALUES
+                                     (?,'RequestShipped','Email')""", User)
+                self.ill_cursor.execute("""INSERT INTO UserNotifications
+                                    (UserName, ActivityType, NotificationType)
+                                     VALUES
+                                    (?,'RequestElectronicDelivery','Email')""",
+                                        User)
+                self.ill_cursor.execute("""INSERT INTO UserNotifications
+                                    (UserName, ActivityType, NotificationType)
+                                     VALUES
+                                     (?,'RequestOverdue','Email')""", User)
+                self.ill_cursor.execute("""INSERT INTO UserNotifications
+                                    (UserName, ActivityType, NotificationType)
+                                     VALUES
+                                     (?,'RequestCancelled','Email')""", User)
+                self.ill_cursor.execute("""INSERT INTO UserNotifications
+                                    (UserName, ActivityType, NotificationType)
+                                    VALUES (?,'RequestOther','Email')""", User)
 
     def remove_users(self):
-        """This function performs user removals to the ILLiad database
-           by querying the local SQLite3 ill_remove table
+        """This function performs User removals to the ILLiad database
+           by querying the local SQLite3 ILL_REMOVE table
 
         Parameters:
         None
@@ -313,18 +351,32 @@ class illiad_manager:
         """
 
         user_removals = self.sqlite3_cursor.execute(
-            """select alt_id from ill_remove"""
+            """select alt_id from ILL_REMOVE"""
         ).fetchall()
 
-        print('\tRemoving ' + str(len(user_removals)) + ' users')
-
+        print('\tRemoving ' + str(len(user_removals)) + ' users from ILLiad')
+        usertrans = 0
         if len(user_removals) > 0:
+            for idp in user_removals:
+                hasTrans = self.ill_cursor.execute(
+                    """select distinct UserName from users
+                    where UserName=? AND UserName IN
+                    (select UserName from Transactions); """, idp).fetchall()
+                usertrans += len(hasTrans)
             self.ill_cursor.executemany(
-                """delete from users where UserName=?""", user_removals)
+                 """delete from users where UserName=? AND
+                    UserName NOT IN
+                    (select UserName from Transactions); """, user_removals)
+            self.ill_cursor.executemany(
+                 """delete from UserNotifications where UserName=? AND
+                    UserName NOT IN
+                    (select UserName from Transactions); """, user_removals)
+        print("\tUsers not deleted due to transaction history: " +
+              str(usertrans))
 
     def update_users(self):
         """This function performs updates to the ILLiad database by querying
-           the local SQLite3 ill_update table
+           the local SQLite3 ILL_UPDATE table
 
         Parameters:
         None
@@ -337,10 +389,10 @@ class illiad_manager:
             """select last_name, first_name, user_id, user_profile,
             email1, phone1, department, SUBSTR(main_street,1,39),
             SUBSTR(main_city, 1, 29), SUBSTR(main_state,1,2),
-            main_zip, user_cat1, alt_id from ill_update"""
+            main_zip, user_cat1, alt_id from ILL_UPDATE"""
         ).fetchall()
 
-        print('\tUpdating ' + str(len(user_updates)) + ' users')
+        print('\tUpdating ' + str(len(user_updates)) + ' users in ILLiad')
         if len(user_updates) > 0:
             self.ill_cursor.executemany(
                     """update users
@@ -369,16 +421,16 @@ class illiad_manager:
             ret = ""
         return ret
 
-    def getuser(self, user, cat2dict={}, cat3dict={}):
+    def getuser(self, User, cat2dict={}, cat3dict={}):
         """Parse a XML User entry and output a list
-        containing formatted user entries
+        containing formatted User entries
 
         Parameters:
         cat2dict: A dictionary containing departmental categories
         cat3dict: A dictionary containing major/degree categories
 
         Returns:
-        user: A list containing parsed users fields
+        User: A list containing parsed users fields
         """
         line1 = ""
         city = ""
@@ -397,18 +449,18 @@ class illiad_manager:
         middleName = ""
         lastName = ""
         userGroup = ""
-        ouNetID = self.finder(user, "primary_id")
-        firstName = self.finder(user, "first_name")
-        middleName = self.finder(user, "middle_name")
-        lastName = self.finder(user, "last_name")
-        userGroup = self.finder(user, "user_group")
-        contact_info = user.findall("./contact_info/addresses/*")
-        email_info = user.findall("./contact_info/emails/*")
-        phone_info = user.findall("./contact_info/phones/*")
+        ouNetID = self.finder(User, "primary_id")
+        firstName = self.finder(User, "first_name")
+        middleName = self.finder(User, "middle_name")
+        lastName = self.finder(User, "last_name")
+        userGroup = self.finder(User, "user_group")
+        contact_info = User.findall("./contact_info/addresses/*")
+        email_info = User.findall("./contact_info/emails/*")
+        phone_info = User.findall("./contact_info/phones/*")
         id_prefix = "./user_identifiers/user_identifier"
-        id_type = self.finder(user, id_prefix + "/id_type")
-        id_val = self.finder(user, id_prefix + "/value")
-        stats_info = user.findall("./user_statistics/user_statistic")
+        id_type = self.finder(User, id_prefix + "/id_type")
+        id_val = self.finder(User, id_prefix + "/value")
+        stats_info = User.findall("./user_statistics/user_statistic")
         cats = {}
         for i in contact_info:
             if i.attrib["preferred"] == "true":
