@@ -398,7 +398,8 @@ class illiad_manager:
                     """update users
                     set LastName=?, FirstName=?, SSN=?, Status=?,
                     EMailAddress=?, Phone=?, Department=?, Address=?, City=?,
-                    State=?, Zip=?, Site=? where UserName = ?""",
+                    State=?, Zip=?, Site=?, LastChangedDate=GETDATE()
+                    where UserName = ?""",
                     user_updates)
 
     def finder(self, tree, elmkey):
