@@ -236,9 +236,9 @@ class illiad_manager:
         self.sqlite3_cursor.execute("""delete from USERS_OLD""").fetchall()
 
         print("\tGetting Current ILLiad Users")
-        ill_users = self.ill_cursor.execute("""SELECT UserName, LastName, FirstName, SSN,
-                Status, EMailAddress, Phone, Department, Address, City, State,
-                Zip, Site from Users""").fetchall()
+        ill_users = self.ill_cursor.execute("""SELECT UserName, LastName,
+                FirstName, SSN, Status, EMailAddress, Phone, Department,
+                Address, City, State, Zip, Site from Users""").fetchall()
 
         print("\tInserting " + str(len(ill_users)) +
               " Users into SQLite3 Table USERS_OLD")
@@ -255,8 +255,8 @@ class illiad_manager:
         print("\tInserting " + str(len(user_list)) +
               " Users into SQLite3 Table USERS_NEW")
         self.sqlite3_cursor.executemany(
-                        """insert into USERS_NEW values(?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?,
-                        ?, ?, ?, ?, ?, ?, ?, ?)""",
+                        """insert into USERS_NEW values(?, ?, ?, ?, ?, ?, ?, ?,
+                        ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                         user_list,
                     )
 
@@ -303,7 +303,7 @@ class illiad_manager:
             for User in add_id:
                 self.ill_cursor.execute("""update users
             Set LastChangedDate=GETDATE(), NVTGC='ILL', Cleared='Yes',
-            Web='Yes',NotificationMethod='Electronic'
+            Web='Yes',NotificationMethod='Electronic', AuthType='RemoteAuth'
             where UserName = ?
         """, User)
                 self.ill_cursor.execute("""INSERT INTO UserNotifications
@@ -398,12 +398,13 @@ class illiad_manager:
                     """update users
                     set LastName=?, FirstName=?, SSN=?, Status=?,
                     EMailAddress=?, Phone=?, Department=?, Address=?, City=?,
-                    State=?, Zip=?, Site=?, LastChangedDate=GETDATE()
+                    State=?, Zip=?, Site=?, LastChangedDate=GETDATE(),
+                    AuthType='RemoteAuth'
                     where UserName = ?""",
                     user_updates)
 
     def finder(self, tree, elmkey):
-        """A XML helper function that returns the text of an Element if it exists
+        """A XML helper function that returns the text of an Element
         If it is not set it retuns an empty string
 
         Parameters:
