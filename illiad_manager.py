@@ -218,6 +218,18 @@ class illiad_manager:
         Returns:
         None
         """
+        # Create USERS_OLD table if it doesn't exist,
+        # typically during first run
+        self.sqlite3_cursor.execute(
+            """create table if not exists
+                           USERS_OLD (user_id, alt_id, user_name_full,
+                                      first_name, middle_name, last_name,
+                                      user_profile, user_cat1,
+                                      user_cat2, major, user_cat3,
+                                      department, phone1, main_street,
+                                      main_city, main_state, main_zip,
+                                      email1, userdata)"""
+        )
 
         # Create USERS_NEW table if it doesn't exist,
         # typically during first run
