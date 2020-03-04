@@ -55,7 +55,7 @@ class illiad_manager:
                   performs operations using sqlite3cnxn
         """
 
-        self.illcnxn = pyodbc.connect(secrets.illiad_cnxn)
+        self.illcnxn = pyodbc.connect(secrets.illiad_cnxn, autocommit=True)
         self.sqlite3cnxn = sqlite3.connect("sqlite.db")
         self.ill_cursor = self.illcnxn.cursor()
         self.ill_cursor.fast_executemany = True
@@ -318,38 +318,41 @@ class illiad_manager:
             Web='Yes',NotificationMethod='Electronic', AuthType='RemoteAuth'
             where UserName = ?
         """, User)
-                self.ill_cursor.execute("""INSERT INTO UserNotifications
+                try:
+                    self.ill_cursor.execute("""INSERT INTO UserNotifications
                                     (UserName, ActivityType, NotificationType)
-                                     VALUES
-                                     (?,'ClearedUser','Email')""", User)
-                self.ill_cursor.execute("""INSERT INTO UserNotifications
+                                    VALUES
+                                    (?,'ClearedUser','Email')""", User)
+                    self.ill_cursor.execute("""INSERT INTO UserNotifications
                                     (UserName, ActivityType, NotificationType)
-                                     VALUES
-                                     (?,'PasswordReset','Email')""", User)
-                self.ill_cursor.execute("""INSERT INTO UserNotifications
+                                    VALUES
+                                    (?,'PasswordReset','Email')""", User)
+                    self.ill_cursor.execute("""INSERT INTO UserNotifications
                                     (UserName, ActivityType, NotificationType)
-                                     VALUES
-                                     (?,'RequestPickup','Email')""", User)
-                self.ill_cursor.execute("""INSERT INTO UserNotifications
+                                    VALUES
+                                    (?,'RequestPickup','Email')""", User)
+                    self.ill_cursor.execute("""INSERT INTO UserNotifications
                                     (UserName, ActivityType, NotificationType)
-                                     VALUES
-                                     (?,'RequestShipped','Email')""", User)
-                self.ill_cursor.execute("""INSERT INTO UserNotifications
+                                    VALUES
+                                    (?,'RequestShipped','Email')""", User)
+                    self.ill_cursor.execute("""INSERT INTO UserNotifications
+                            (UserName, ActivityType, NotificationType)
+                            VALUES
+                            (?,'RequestElectronicDelivery','Email')""", User)
+                    self.ill_cursor.execute("""INSERT INTO UserNotifications
                                     (UserName, ActivityType, NotificationType)
-                                     VALUES
-                                    (?,'RequestElectronicDelivery','Email')""",
-                                        User)
-                self.ill_cursor.execute("""INSERT INTO UserNotifications
+                                    VALUES
+                                    (?,'RequestOverdue','Email')""", User)
+                    self.ill_cursor.execute("""INSERT INTO UserNotifications
                                     (UserName, ActivityType, NotificationType)
-                                     VALUES
-                                     (?,'RequestOverdue','Email')""", User)
-                self.ill_cursor.execute("""INSERT INTO UserNotifications
-                                    (UserName, ActivityType, NotificationType)
-                                     VALUES
-                                     (?,'RequestCancelled','Email')""", User)
-                self.ill_cursor.execute("""INSERT INTO UserNotifications
+                                    VALUES
+                                    (?,'RequestCancelled','Email')""", User)
+                    self.ill_cursor.execute("""INSERT INTO UserNotifications
                                     (UserName, ActivityType, NotificationType)
                                     VALUES (?,'RequestOther','Email')""", User)
+                except pyodbc.IntegrityError as e:
+                    print("""Already Notification Type Already Exists.
+                    Full Error:""", e)
 
     def remove_users(self):
         """This function performs User removals to the ILLiad database
