@@ -70,23 +70,25 @@ def main():
 
     for i in sturoot.findall("user"):
         user_list.append(im.getuser(i, cat2dict, cat3dict))
-
-    print('Updating Tables')
-    im.update_tables(user_list)
-    print('Generating User Adds')
-    im.gen_user_adds()
-    print('Generating User Removes')
-    im.gen_user_removals()
-    print('Generating User Updates')
-    im.gen_user_updates()
-    print('Removing Users')
-    im.remove_users()
-    print('Adding Users')
-    im.add_users()
-    print('Updating Users')
-    im.update_users()
-    print('Closing Connection')
-    im.close_cnxn()
+    try:
+        print('Updating Tables')
+        im.update_tables(user_list)
+        print('Generating User Adds')
+        im.gen_user_adds()
+        print('Generating User Removes')
+        im.gen_user_removals()
+        print('Generating User Updates')
+        im.gen_user_updates()
+        print('Removing Users')
+        im.remove_users()
+        print('Adding Users')
+        im.add_users()
+        print('Updating Users')
+        im.update_users()
+        print('Closing Connection')
+        im.close_cnxn()
+    except Exception as e:
+        print("FAILURE: ", e)
 
 
 if __name__ == "__main__":
