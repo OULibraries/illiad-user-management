@@ -4,6 +4,8 @@ _Helper Scripts for ILLiad User Management_
 
 This module synchronizes ILLiad database with a supplied XML document
 
+A optional email module has also been added which will send an email containing the output of the management script (if directed to a file), to defined email recipients 
+
 ---
 **Requires:**
 
