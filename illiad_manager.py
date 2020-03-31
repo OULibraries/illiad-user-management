@@ -485,6 +485,16 @@ class illiad_manager:
                 line1 = self.finder(i, "line1")
                 state = self.finder(i, "state_province")
                 postalCode = self.finder(i, "postal_code")
+            elif self.finder(i, "address_types/address_type") == "home":
+                city = self.finder(i, "city")
+                line1 = self.finder(i, "line1")
+                state = self.finder(i, "state_province")
+                postalCode = self.finder(i, "postal_code")
+            else:
+                city = self.finder(i, "city")
+                line1 = self.finder(i, "line1")
+                state = self.finder(i, "state_province")
+                postalCode = self.finder(i, "postal_code")
 
         for i in email_info:
             if i.attrib["preferred"] == "true":
