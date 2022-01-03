@@ -176,22 +176,22 @@ class illiad_manager:
             SUBSTR(main_street,1,39) as main_street,
             SUBSTR(main_city, 1, 29) as main_city,
             SUBSTR(main_state,1,2) as main_state,
-            main_zip, user_cat1,  alt_id|| last_name
-            || first_name|| user_id || user_profile || email1 ||
-            phone1|| department||SUBSTR(main_street,1,39)||
-            SUBSTR(main_city, 1, 29) || SUBSTR(main_state,1,2)
-            || main_zip || user_cat1
+            main_zip, user_cat1,  (IFNULL(alt_id,'')|| IFNULL(last_name,'')
+            || IFNULL(first_name,'')|| IFNULL(user_id,'') || IFNULL(user_profile,'') || IFNULL(email1,'') ||
+            IFNULL(phone1,'')|| IFNULL(department,'')|| IFNULL(SUBSTR(main_street,1,39),'')||
+            IFNULL(SUBSTR(main_city, 1, 29),'') || IFNULL(SUBSTR(main_state,1,2),'')
+            || IFNULL(main_zip,'') || IFNULL(user_cat1,''))
                 as hash from USERS_OLD) as a
                 join (select user_id, last_name, first_name,
                 user_id, user_profile, email1, phone1, department,
                 SUBSTR(main_street,1,39) as main_street,
             SUBSTR(main_city, 1, 29) as main_city,
             SUBSTR(main_state,1,2) as main_state,
-            main_zip, user_cat1, alt_id, alt_id|| last_name
-                || first_name|| user_id || user_profile || email1 ||
-                phone1|| department|| SUBSTR(main_street,1,39)||
-            SUBSTR(main_city, 1, 29) || SUBSTR(main_state,1,2)
-            || main_zip || user_cat1
+            main_zip, user_cat1, alt_id, (IFNULL(alt_id,'')|| IFNULL(last_name,'')
+            || IFNULL(first_name,'')|| IFNULL(user_id,'') || IFNULL(user_profile,'') || IFNULL(email1,'') ||
+            IFNULL(phone1,'')|| IFNULL(department,'')|| IFNULL(SUBSTR(main_street,1,39),'')||
+            IFNULL(SUBSTR(main_city, 1, 29),'') || IFNULL(SUBSTR(main_state,1,2),'')
+            || IFNULL(main_zip,'') || IFNULL(user_cat1,''))
                 as hash
                 from USERS_NEW) f
                 using(alt_id)
@@ -350,9 +350,8 @@ class illiad_manager:
                     self.ill_cursor.execute("""INSERT INTO UserNotifications
                                     (UserName, ActivityType, NotificationType)
                                     VALUES (?,'RequestOther','Email')""", User)
-                except pyodbc.IntegrityError as e:
-                    print("""Already Notification Type Already Exists.
-                    Full Error:""", e)
+                except pyodbc.IntegrityError:
+                    print("Already Exists.")
 
     def remove_users(self):
         """This function performs User removals to the ILLiad database
