@@ -400,10 +400,20 @@ class illiad_manager:
         """
 
         user_updates = self.sqlite3_cursor.execute(
-            """select last_name, first_name, user_id, user_profile,
-            email1, phone1, department, SUBSTR(main_street,1,39),
-            SUBSTR(main_city, 1, 29), SUBSTR(main_state,1,2),
-            main_zip, user_cat1, alt_id from ILL_UPDATE"""
+            """select last_name
+                    , first_name
+                    , user_id
+                    , user_profile
+                    , email1
+                    , phone1
+                    , department
+                    , SUBSTR(main_street,1,39)
+                    , SUBSTR(main_city, 1, 29)
+                    , SUBSTR(main_state,1,2)
+                    , CASE WHEN length(main_zip)>10 THEN "-ERR-" ELSE main_zip END
+                    , user_cat1
+                    , alt_id
+                 from ILL_UPDATE"""
         ).fetchall()
 
         print('\tUpdating ' + str(len(user_updates)) + ' users in ILLiad')
