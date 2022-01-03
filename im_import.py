@@ -1,4 +1,5 @@
 import illiad_manager
+import json
 import xml.etree.ElementTree as ElementTree
 
 """
@@ -75,12 +76,12 @@ def main():
         im.update_tables(user_list)
         print('Generating User Adds')
         im.gen_user_adds()
-        print('Generating User Removes')
-        im.gen_user_removals()
+        # print('Generating User Removes')
+        # im.gen_user_removals()
         print('Generating User Updates')
         im.gen_user_updates()
-        print('Removing Users')
-        im.remove_users()
+        # print('Removing Users')
+        # im.remove_users()
         print('Adding Users')
         im.add_users()
         print('Updating Users')
