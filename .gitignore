@@ -1,1 +1,9 @@
 secrets.py
+__pycache__/
+cat2s
+cat3s
+lib_emp.txt
+lib_stu.txt
+sqlite.db
+staging_im_output.txt
+
