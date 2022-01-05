@@ -1,34 +1,32 @@
+#!/usr/bin/env python3
+
 import smtplib, ssl
 import secrets
+import email 
 
-port = secrets.email_port  # For SSL
-smtp_server = secrets.smtp_server
-sender_email = secrets.sender_email
-sender_password = secrets.sender_password
-send_as = secrets.send_as
-send_to = secrets.send_to # List Data Type, can contain single entry
-# Create a secure SSL context
-context = ssl.create_default_context()
-server = smtplib.SMTP(smtp_server, port)
-server.starttls(context=context)
-server.login(sender_email, password)
-log_file = secrets.log_file_location 
-# Declares message, will be overwritten in following loop
-message = """\
-Subject: ILLiad User Management -
-"""
-# Need to find better way to check than loop through log, this is quick and dirty
-for row in open(log_file,"r"):
-    if "FAILURE" in row:
-        message = """Subject: ILLiad Staging User Management - FAILURE
-
-"""
-    else:
-        message = """Subject: ILLiad Staging User Management - SUCCESS
-
-"""
-for row in open(log_file,"r"):
+# Construct message based on results of ILLiad update
+# If any step failed, status should be failed. 
+message=""
+update_status = "UNKNOWN"
+with open("im_output.txt", "r") as results:
+    for row in results:
+        if "FAILURE" in row:
+           update_status = "FAILURE"
+        else: 
+           update_status = "SUCCESS"
         message += row
-# Send email to each recipient, if singular List should have one entry
-for recipient in send_to:
-        server.sendmail(send_as, recipient, message)
+msg = email.message.EmailMessage()
+msg['Subject'] = "Subject: ILLiad %s User Management - %s" % (secrets.environment, update_status) 
+msg['From'] = secrets.sender
+msg['To'] = secrets.recipients
+msg.set_content(message)
+
+# Use SSL for email but ignore bad host name error. 
+context = ssl.create_default_context()
+context.check_hostname = False  
+server = smtplib.SMTP(secrets.smtp_server, 587)
+server.starttls(context=context)
+server.send_message(msg)
+server.quit()
+
+
