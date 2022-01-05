@@ -16,7 +16,7 @@ with open("im_output.txt", "r") as results:
            update_status = "SUCCESS"
         message += row
 msg = email.message.EmailMessage()
-msg['Subject'] = "Subject: ILLiad %s User Management - %s" % (secrets.environment, update_status) 
+msg['Subject'] = "ILLiad %s User Management - %s" % (secrets.environment, update_status) 
 msg['From'] = secrets.sender
 msg['To'] = secrets.recipients
 msg.set_content(message)
